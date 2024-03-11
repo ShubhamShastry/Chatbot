@@ -1,0 +1,127 @@
+pip install flask
+
+mkdir projectname
+
+cd projectname
+
+notepad cbot.py
+
+mkdir templates
+
+cd templates
+
+notepad index.html
+
+IN CBOT.PY TYPE THIS
+
+from flask import Flask,render_template,request
+
+app=Flask('__name__')
+
+@app.route("/")
+
+def index():
+	return  render_template("index.html")
+
+if __name__=="__main__":
+	app.run(debug=True)
+	
+IN INDEX.HTML TYPE THIS
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hi Everyone</h1>
+</body>
+</html>
+
+
+then in terminal type this python cbot.py and run and click on the link
+
+
+u will get hi everyone in wepage
+
+run code in terminal
+
+pip install -U pip wheel
+
+pip install -U chatterbot==1.0.4
+
+write this in cbot.py
+
+from flask import Flask,render_template,request
+from chatterbot import ChatBot
+from chatterbot.trainers import ChatterBotCorpusTrainer
+
+app=Flask('__name__')
+english_bot=ChatBot("Chatterbot",storage_adapter="chatterbot.storage.SQLStorageAdapter")
+trainer=ChatterBotCorpusTrainer(english_bot)
+trainer.train("chatterbot.corpus.english")
+trainer.train("data/data.yml")
+
+
+@app.route("/")
+
+def index():
+	return  render_template("index.html")
+
+@app.route("/get")
+def get_bot_response():
+	userText=request.args.get("msg") #get data from input, we write JS to index.html
+	return str(english_bot.get_response(userText))
+
+if __name__=="__main__":
+	app.run(debug=True)
+	
+
+write this in index.html
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <h1>Flask Chatterbot </h1>
+    <h3>A web implementation of chatbot using flask</h3>
+    <div>
+      <div id="chatbox">
+        <p class="botText"><span>Hi! I'm Chatterbot from NK.</span></p>
+      </div>
+      <div id="userInput">
+        <input id="textInput" type="text" name="msg" placeholder="Message">
+        <input id="buttonInput" type="submit" value="Send">
+      </div>
+<script>
+        function getBotResponse() {
+          var rawText = $("#textInput").val();
+          var userHtml = '<p class="userText"><span>' + rawText + '</span></p>';
+          $("#textInput").val("");
+          $("#chatbox").append(userHtml);
+          document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
+          $.get("/get", { msg: rawText }).done(function(data) {
+            var botHtml = '<p class="botText"><span>' + data + '</span></p>';
+            $("#chatbox").append(botHtml);
+            document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
+          });
+        }
+$("#textInput").keypress(function(e) {
+            if ((e.which == 13) && document.getElementById("textInput").value != "" ){
+                getBotResponse();
+            }
+        });
+        $("#buttonInput").click(function() {
+            if (document.getElementById("textInput").value != "") {
+                getBotResponse();
+            }
+        })
+      </script>
+    </div>
+  </body>
+</html>
